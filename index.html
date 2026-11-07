@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maze Escape — Find Your Way Out</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <button class="brand" id="brandHome">
+      <span class="brand-icon">⌘</span>
+      <span>MAZE<span class="accent">.</span>ESCAPE</span>
+    </button>
+
+    <div class="header-right">
+      <span class="status-dot"></span>
+      <span>YOUR NEXT MOVE AWAITS</span>
+
+      <!-- Background music control -->
+      <button
+        class="btn btn-secondary btn-small"
+        id="musicBtn"
+        type="button"
+        aria-pressed="false"
+      >
+        ♫ Music: Off
+      </button>
+    </div>
+  </header>
+
+  <!-- Adventure background music -->
+  <audio
+    id="backgroundMusic"
+    src="audio/adventure.mp3"
+    loop
+    preload="metadata"
+  ></audio>
+
+  <main>
+
+    <!-- HOME SCREEN -->
+    <section id="menuScreen" class="screen">
+      <div>
+        <div class="eyebrow">◈ THINK FAST. FIND THE EXIT.</div>
+        <h1>LOST IN<br>THE <span class="accent">MAZE.</span></h1>
+
+        <p class="hero-copy">
+          Every turn is a decision. Collect coins, dodge traps,
+          outsmart the hunter, and find your way out.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="playBtn">
+            Start adventure ↗
+          </button>
+          <button class="btn btn-secondary" id="levelsBtn">
+            Explore levels
+          </button>
+        </div>
+
+        <p class="hero-note mono">
+          5 LEVELS · ENDLESS POSSIBILITIES · ONE EXIT
+        </p>
+
+        <div class="feature-row">
+          <div class="feature">
+            <div class="feature-icon">✳</div>
+            <strong>Find your path</strong>
+            <span>Navigate a freshly generated maze.</span>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">◉</div>
+            <strong>Collect & survive</strong>
+            <span>Grab coins and avoid hidden traps.</span>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">⌁</div>
+            <strong>Beat the hunter</strong>
+            <span>Outsmart enemies in later levels.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="art-panel">
+        <div class="art-top">
+          <span>MAZE SIMULATION / 001</span>
+          <span class="live-tag">● SYSTEM READY</span>
+        </div>
+        <div class="decor-grid" id="decorGrid"></div>
+        <div class="art-bottom">
+          <span>FIND YOUR OWN WAY</span>
+          <span class="mono">01 — 05</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEVEL SELECTION -->
+    <section id="levelsScreen" class="screen hidden">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">CHOOSE YOUR CHALLENGE</div>
+          <h2>Pick your <span class="accent">maze.</span></h2>
+          <p class="section-sub">
+            Each level brings a new maze and a bigger challenge.
+          </p>
+        </div>
+        <button class="btn btn-secondary btn-small backBtn">
+          ← Home
+        </button>
+      </div>
+
+      <div class="level-grid" id="levelGrid"></div>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section id="gameScreen" class="screen hidden">
+      <div class="game-top">
+        <div>
+          <div class="eyebrow">CURRENT MISSION</div>
+          <h2 id="levelTitle">
+            Level 01 <span class="accent">/ Explorer</span>
+          </h2>
+        </div>
+        <button class="btn btn-secondary btn-small" id="pauseBtn">
+          Ⅱ Pause
+        </button>
+      </div>
+
+      <div class="game-layout">
+        <div class="maze-panel">
+          <div class="maze-topline">
+            <span>THE LABYRINTH</span>
+            <span id="mazeSize" class="mono">11 × 11</span>
+          </div>
+
+          <canvas id="mazeCanvas" aria-label="Maze game board"></canvas>
+
+          <div class="legend">
+            <span><i style="background:#c6f36b"></i> You</span>
+            <span><i style="background:#f5cf68"></i> Coin</span>
+            <span><i style="background:#f08080"></i> Trap / Hunter</span>
+            <span><i style="background:#78c9a1"></i> Exit</span>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="panel-title">MISSION STATUS</div>
+
+          <div class="stats-grid">
+            <div class="stat">
+              <div class="stat-label">Time elapsed</div>
+              <div class="stat-value" id="timer">00:00</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-label">Moves made</div>
+              <div class="stat-value" id="moves">0</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-label">Coins found</div>
+              <div class="stat-value" id="coins">0 / 4</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-label">Lives left</div>
+              <div class="stat-value lives" id="lives">♥ ♥ ♥</div>
+            </div>
+          </div>
+
+          <div class="side-divider"></div>
+          <div class="panel-title">YOUR CONTROLS</div>
+
+          <div class="control-stack">
+            <button class="btn btn-primary" id="hintBtn">
+              ✧ Reveal shortest path
+            </button>
+            <button class="btn btn-secondary" id="restartBtn">
+              ↻ Restart level
+            </button>
+            <button class="btn btn-secondary" id="soundBtn">
+              ♫ Sound: On
+            </button>
+          </div>
+
+          <p class="hint-message" id="hintMessage">
+            Hints reveal a route to the exit.
+          </p>
+
+          <div class="key-guide">
+            <p>MOVE AROUND THE MAZE</p>
+            <div class="key-row">
+              <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+              <span class="key-hint">or arrow keys</span>
+            </div>
+            <div class="key-row" style="margin-top:9px">
+              <kbd>H</kbd>
+              <span class="key-hint">Show shortest path</span>
+            </div>
+            <div class="key-row" style="margin-top:5px">
+              <kbd>ESC</kbd>
+              <span class="key-hint">Pause / resume</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PAUSE SCREEN -->
+    <section id="pauseScreen" class="screen overlay-screen hidden">
+      <div class="modal">
+        <div class="modal-mark">Ⅱ</div>
+        <div class="eyebrow">TAKE A BREATHER</div>
+        <h2>Game <span class="accent">paused.</span></h2>
+        <p>
+          Plan your next move and get back out there.
+        </p>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="resumeBtn">
+            ▶ Resume game
+          </button>
+          <button class="btn btn-secondary" id="pauseRestartBtn">
+            ↻ Restart
+          </button>
+          <button class="btn btn-secondary" id="pauseHomeBtn">
+            Home
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section id="resultScreen" class="screen overlay-screen hidden">
+      <div class="modal">
+        <div class="modal-mark" id="resultMark">✓</div>
+        <div class="eyebrow" id="resultEyebrow">MISSION COMPLETE</div>
+
+        <h2 id="resultTitle">
+          You found your <span class="accent">way out.</span>
+        </h2>
+
+        <p id="resultDescription">
+          Every step brought you closer.
+        </p>
+
+        <div class="result-stats">
+          <div class="result-stat">
+            <span>Time</span>
+            <strong id="finalTime">00:00</strong>
+          </div>
+          <div class="result-stat">
+            <span>Moves</span>
+            <strong id="finalMoves">0</strong>
+          </div>
+          <div class="result-stat">
+            <span>Coins</span>
+            <strong id="finalCoins">0</strong>
+          </div>
+        </div>
+
+        <div class="score-line">
+          FINAL SCORE <strong id="finalScore">0</strong>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="nextBtn">
+            Next level →
+          </button>
+          <button class="btn btn-primary hidden" id="replayBtn">
+            ↻ Play again
+          </button>
+          <button class="btn btn-secondary" id="resultHomeBtn">
+            Home
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <span>MAZE.ESCAPE / FIND YOUR WAY OUT</span>
+    <span>BUILT FOR CURIOUS MINDS.</span>
+  </footer>
+
+  <!-- Load WebAssembly first, then the game JavaScript -->
+  <script src="wasm/maze.js"></script>
+  <script src="game.js"></script>
+
+</body>
+</html>
